@@ -1,0 +1,37 @@
+public class Canvas extend Canvas {
+	private boolean ottimizzazione;
+	private Array[2] cursore;
+
+	private double WGerarchia; \\dimensioni della gerarchia corrente variabili
+	private double HGerarchia;
+
+	private final WIDTH; \\dimensioni fissate del canvas 
+	private finale LENGTH;
+
+	public Canvas() {
+	\\costruttore con dati di grandezza ecc
+	}
+	
+	public boolean DoppiaRiga(ArrayList<Persona> figli) {
+	\*conta i figli dell'imperatore e le loro mogli, se superano un numero settato
+	in base alla larghezza del suo spazio dedicato da a quella gerarchia una doppia riga
+	*\
+	}
+
+	public void scriviNome(Array[2] coordinate, String nome, boolean imperatore, Graphics g, qualcos'altro)
+	\* scriverà il nome del tipo nella posizione del cursore o coordinate generiche, verificherà
+	-se deve andare a capo se il nome è troppo lungo;
+	-se mettere in grassetto il nome se è imperatore(aggiungendo eventuali dati);
+	*\
+	}
+
+	public void ottimizzazione(Array<Persona> array) {
+	\* verifica quali persone della dinastia non hanno continuo e chi si per posizionarli all'
+	esterno/interno dell'immagine per ottimizzarla
+	*\
+	}
+				
+	public void adozione(Graphics g) {
+	\\ disegna una linea tratteggiata
+	}
+}

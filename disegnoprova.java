@@ -10,10 +10,10 @@ public class disegnoprova extends Canvas {
 		Color c = new Color(190,0,0);
 		JFrame master =  new JFrame();
 		JPanel finestra= new JPanel();
-		JLabel testo= new JLabel("");
+		JLabel testo= new JLabel("",SwingConstants.CENTER);
 		Font font = new Font("SansSerif", Font.BOLD, 20);
 		JLabel label = new JLabel("Seleziona la dinastia:                   >");
-		JLabel creators= new JLabel("<html> CREATORS: <br/><br/> Andrea<br/> Di Franco <br/><br/> Tobia<br/> Bacchiddu <br/><br/> Federico<br/> Iannini <br/><br/> Edoardo<br/> Luziatelli <br/><br/> Alberto<br/> Guglielmotti </html>" ); 
+		JLabel creators= new JLabel("<html>&nbsp CREATORS: <br/><br/>&nbsp &nbsp -Andrea<br/>&nbsp &nbsp Di Franco <br/><br/>&nbsp &nbsp -Tobia<br/>&nbsp &nbsp Bacchiddu <br/><br/>&nbsp &nbsp -Federico<br/>&nbsp &nbsp Iannini <br/><br/>&nbsp &nbsp -Edoardo<br/>&nbsp &nbsp Luziatelli <br/><br/>&nbsp &nbsp -Alberto<br/>&nbsp &nbsp Guglielmotti &nbsp </html>" ); 
 		JPanel pannello= new JPanel();
 		JPanel pannelloCanvas= new JPanel();
 		JComboBox lista= new JComboBox(dinastie);
@@ -78,6 +78,7 @@ public class disegnoprova extends Canvas {
 		
 		reset.setBackground(Color.white);
 		reset.setForeground(c);
+		reset.setFont(font);
 		
 		lista.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent event) {
@@ -89,6 +90,12 @@ public class disegnoprova extends Canvas {
 				Imperatore prova = AlberoPerTestGUI.Tree();
 				ArrayList<Integer> counter = new ArrayList<Integer>();
 				int generazioni = ContaGenerazioni.ricorsiva(prova, counter);
+				JLabel ngen = new JLabel(generazioni+" Generazioni  ");
+				ngen.setBackground(c);
+				ngen.setForeground(Color.black);
+				ngen.setOpaque(true);
+				ngen.setFont(font);
+				master.add(ngen,BorderLayout.EAST);
 				CanvasCreator C = new CanvasCreator(prova,generazioni);
 				C.setSize(1000, 500);
 				pannelloCanvas.add(C);

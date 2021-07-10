@@ -4,30 +4,30 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.util.ArrayList;
-import javax.swing.JFrame;
 
 
 public class CanvasCreator extends Canvas {
 	private Imperatore radice;
 	private int WGenerazione; //dimensioni della generazione corrente variabili
-	private int HGenerazione;
+	private int HGenerazione; //HGEN POTREBBE ESSERE FISSA, LA GRANDEZZA DEL CANVAS DOVREBBE ESSERE SETTATA IN BASE A QUANTE GENERAZIONI CI SONO (H CANVAS= HGEN x N.Gen)
 	private final int WIDTH; //dimensioni fissate del canvas 
 	private final int LENGTH;
-	private boolean ImpFratelli;
+	private int fratello;
+	private int[] cursore;
 
 	public CanvasCreator(Imperatore rad, int numgen) {
 		radice=rad;
-		this.WIDTH= 100 ;
-		this.LENGTH= 100;
+		this.WIDTH= 100 ; 	//potrebbe essere fissa
+		this.LENGTH= 100;	//se non le decide andrea gliele passo in base al numgen (HGen x (NumGen x 2) perche ogni volta il livello è per 2))
 		setWGenerazione(WIDTH);
 		setBackground(Color.white);
 		setSize(WIDTH, LENGTH);
 		
 	//costruttore con dati di grandezza ecc da aggiungere al frame
 	}
+	@Override
 	public void paint(Graphics g) { //CanvasCreator canvas, Persona albero, double h , double w, boolean ott, double[] cur
-		//ricorsiva(g, rad, h, w, cursore[ 0, 0], 0)
+		//ricorsiva(g, radice, WGenerazione, 0, false);
 	}
 	
 	
@@ -35,14 +35,15 @@ public class CanvasCreator extends Canvas {
 	 X OGNI VOLTA CHE CI STA GETWGENE RISCRIVERE COME WSEZ 
 	 X RINOMINARE VARIABILI DI GIOCO, DIMENSIONE NOMI ECC E METTERE IL NOME DELL IMPERATORE PIù CENTRATO POSSIBILE
 	 X METODO RESET CURSORE
-	 -CASO IMPERATORI FRATELLI (NELL'ULTIMA PARTE)
-	 -CORREZIONE COLLEGAMENTO TRA IMPERATORI SE CI STA UNA MADRE SE L'IMPERATORE è ADOTTATO (fatto ma da rivedere)
+	 X CASO IMPERATORI FRATELLI (NELL'ULTIMA PARTE)
+	 X CORREZIONE COLLEGAMENTO TRA IMPERATORI SE CI STA UNA MADRE SE L'IMPERATORE è ADOTTATO (fatto ma da rivedere) (l'imperatore non può avere madre ed essere adottatao (forse ero troppo hi))
 	 -GRANDEZZA NOMI E GIOCHI
-	 -LUNGHEZZA DELLE H GENERAZIONI (FORSE TROPPO PICCOLE PER TRATE MOGLI INUTILI)
-	 -CASO IN CUI NON CI STANNO FIGLI SE NON IMPERATORI QUINDI NON SERVIREBBE METTERE UN DOPPIO LIVELLO (forse non lo gestiamo)
+	 X LUNGHEZZA DELLE H GENERAZIONI (FORSE TROPPO PICCOLE PER TRATE MOGLI INUTILI)  (la fissiamo quindi sticazzi)
+	 -CASO IN CUI NON CI STANNO FIGLI SE NON IMPERATORI QUINDI NON SERVIREBBE METTERE UN DOPPIO LIVELLO (forse non lo gestiamo) (non lo stiamo gestendo) 
+	 	(basta un boolena di istanza che viene settato da disegna figli e un if prima delle chiamate che incrementa o meno il livello di 1)
 	 */
 	
-	public void ricorsiva(Graphics g, Imperatore rad, int WSez,  int[] cursore, int livello)
+	public void ricorsiva(Graphics g, Imperatore rad, int WSez, int livello, boolean ripeti)
 	{
 		//30 DIMENSIONE PER I NOMI
 		//30 DIMENSIONE LINEE ORIZZONTALI DEL COLLEGAMENTO CON LA MADRE
@@ -54,15 +55,14 @@ public class CanvasCreator extends Canvas {
 		int HNomi = 10;
 		
 		
-		resetCursore(cursore, WSez, lenNome, livello);
+		resetCursore(WSez, lenNome, livello);
 		
 		//verifico se c'è una moglie
 		if ( !(rad.getMogli()==null) )
 		{
 			///verifico se ci sta una madre
-			Persona madre=esisteMadre(rad);
 			//se c'è la madre
-			if (!madre.getNome().equals("")) 
+			if (rad.hasMotherWife()) 
 			{
 				cursore[0]+= -mezzaRiga-gioco-lenNome/2;
 				scriviNome(rad, g, cursore);
@@ -70,25 +70,25 @@ public class CanvasCreator extends Canvas {
 				//disegno linea orizzontale e verticale della madre e imperatore
 				g.drawLine(cursore[0]+lenNome +gioco, cursore[1], cursore[0]+lenNome+gioco+mezzaRiga*2, cursore[1]);
 				cursore[0]= WSez/2;
-				g.drawLine(cursore[0], cursore[1], cursore[0], cursore[1]+ getHGenerazione()/2 );
+				g.drawLine(cursore[0], cursore[1], cursore[0], cursore[1]+ HGenerazione/2 );
 				g.setColor(Color.BLACK);
 				cursore[0]+= mezzaRiga +gioco;
-				scriviNome(madre, g, cursore);
+				scriviNome(rad.getSuccessore().getMadre(), g, cursore);
 				
 				
 				//se non è la radice e c'è una madre devo collegare l'imperatore corrente con la linea del precedente 
 				if (livello !=0) 
 				{
 					cursore[0]=WSez/2;
-					cursore[1]=(getHGenerazione()*livello);
+					cursore[1]=(HGenerazione*livello);
 					g.setColor(Color.RED);
 					g.drawLine(cursore[0], cursore[1], cursore[0]- mezzaRiga -(lenNome/2) , cursore[1]);
 					cursore[0]-=mezzaRiga;
-					g.drawLine(cursore[0], cursore[1], cursore[0], cursore[1]+ getHGenerazione()/2 -gioco*2);
+					g.drawLine(cursore[0], cursore[1], cursore[0], cursore[1]+ HGenerazione/2 -gioco*2);
 				}
 				
 				g.setColor(Color.BLACK);
-				resetCursore(cursore, WSez, lenNome, livello);
+				resetCursore(WSez, lenNome, livello);
 			}
 			
 			//non c'è una madre ma ci sono mogli inutili (imperatore al centro)
@@ -99,26 +99,26 @@ public class CanvasCreator extends Canvas {
 					{
 						//set cursore inzio della generazione  (brutto perche già è settato da un altra parte e non è essenziale questo reset )
 						cursore[0]=WSez/2;
-						cursore[1]=(getHGenerazione()*livello);
+						cursore[1]=(HGenerazione*livello);
 						
 						g.setColor(Color.RED);
-						g.drawLine(cursore[0], cursore[1], cursore[0], cursore[1] +getHGenerazione()/2 -HNomi );   //altezza nome ipotizzata 10 piexls
+						g.drawLine(cursore[0], cursore[1], cursore[0], cursore[1] +HGenerazione/2 -HNomi );   //altezza nome ipotizzata 10 piexls
 						g.setColor(Color.BLACK);
 					}
 					//reset cursore posizione inzile
-					resetCursore(cursore, WSez, lenNome, livello);
+					resetCursore(WSez, lenNome, livello);
 					scriviNome(rad, g, cursore);
 					
 					//linea verticale figli rossa
 					g.setColor(Color.RED);
-					g.drawLine(cursore[0]+mezzaRiga, cursore[1]+HNomi, cursore[0]+mezzaRiga, cursore[1]+getHGenerazione()/2);
+					g.drawLine(cursore[0]+mezzaRiga, cursore[1]+HNomi, cursore[0]+mezzaRiga, cursore[1]+HGenerazione/2);
 					
 					g.setColor(Color.BLACK);
 					
 				}
 			
 			//ci sono mogli inutili e forse anche madre forse anche unica (potrebbe non disegnare nulla) (caso generale per non fare 2 metodi anche nell'else precedente
-			disegnaMogliInutili(rad, g, cursore, madre);
+			disegnaMogliInutili(rad, g, cursore);
 			
 		}
 		//no mogli (caso uguale all'else prima in cui disegno l'imperatore al centro)
@@ -131,8 +131,8 @@ public class CanvasCreator extends Canvas {
 				if (livello !=0)
 				{
 					cursore[0]=WSez/2;
-					cursore[1]=(getHGenerazione()*livello);
-					g.drawLine(cursore[0], cursore[1], cursore[0], cursore[1] +getHGenerazione()/2 -gioco*2 );
+					cursore[1]=(HGenerazione*livello);
+					g.drawLine(cursore[0], cursore[1], cursore[0], cursore[1] +HGenerazione/2 -gioco*2 );
 				}
 				g.setColor(Color.BLACK);
 				
@@ -142,40 +142,72 @@ public class CanvasCreator extends Canvas {
 		if (!(rad.getFigli()==null)) 
 		{
 			cursore[0]= 0;
-			cursore[1]=(getHGenerazione()*(livello+1));
+			cursore[1]=(HGenerazione*(livello+1));
 			disegnaFigli(rad, g, cursore, WSez);
 		}
 		
 		//setto cursore al centro e disegno linea dell'imp
-		cursore[0]=WSez/2;
-		cursore[1]=getHGenerazione()*(livello+1);
+		if (fratello!=1) {
+		resetCursore( WSez, lenNome, livello);
+		cursore[0]+=lenNome;
+		cursore[1]+=HGenerazione/2;
+		
 		g.setColor(Color.RED);
 		
-		if (figlioAdottato(rad)) 
+		if ((rad.hasSuccessor()) && (rad.getSuccessore().isAdopted())) 
 		{
-			disegnaAdozione(cursore[0], cursore[1], cursore[0], cursore[1]+ getHGenerazione(), g);
+			disegnaAdozione(cursore[0], cursore[1], cursore[0], cursore[1]+ HGenerazione, g);
 		}
 		else
 		{
-			g.drawLine(cursore[0], cursore[1], cursore[0], cursore[1]+ getHGenerazione());
+			g.drawLine(cursore[0], cursore[1], cursore[0], cursore[1]+ HGenerazione);
 		}
 		
-		if (rad.getSuccessore() != null)
+		if (fratello==2) {
+			g.drawLine(cursore[0], cursore[1]+HGenerazione, cursore[0]-WSez/2, cursore[1]+HGenerazione);
+			fratello=0;
+		}
+			
+		}
+		
+		if (rad.hasSuccessor()){
+			if(rad.getSuccessore().hasFratelloSuccessore()) {
+				fratello=1;
+			}
 			//condizione che vede il bit imp fratelli e svolge la ricorsiva adatta (cambi wsez in wsez/2)
 			//condizione nella quale se non ci sono figli inutile abbassa l'aumento del livello a 1 e non da la linea lunga
-		{
-			ricorsiva(g, rad.getSuccessore(), WSez, cursore, livello +2);
+		
+			if (fratello==0) {
+			ricorsiva(g, rad.getSuccessore(), WSez, livello +2,true);
+			
+			}
+		
+			else if (ripeti==true) {
+			  
+			 ricorsiva(g, rad.getSuccessore(), WSez/2, livello+2,false);
+			 fratello+=1;
+			 ricorsiva(g, rad.getSuccessore(), WSez/2, livello+2,false); 
+			}
+		}
+	}
+	
+	
+	public void resetCursore(int W, int lenN, int liv) {
+		//se si attiva l'if o l'else if vuol dire che W è W/2 in quanto passato come parametro a ricorsiva per il caso dei fratelli imperatori
+		if (fratello==1) {
+			cursore[0]=W/2-lenN; //cursore va a un quarto dello schermo- len nome
+		}
+		else if(fratello==2){
+			
+			cursore[0]=W+W/2-lenN; //cursore va a 3/4 dello schermo-len nome
+		}
+		else {
+		cursore[0]=W/2-lenN/2;
 		}
 		
+		cursore[1]=(HGenerazione/2 + HGenerazione*liv); //viene eseguito a prescindere
 	}
 	
-	
-	
-	
-	public void resetCursore(int[] cursore, int W, int lenN, int liv) {
-		cursore[0]=W/2-lenN/2;
-		cursore[1]=(getHGenerazione()/2 + getHGenerazione()*liv);
-	}
 	
 	public void disegnaFigli(Imperatore imp, Graphics g, int[] cursore, int WSezTotale) {
 		
@@ -205,32 +237,35 @@ public class CanvasCreator extends Canvas {
 		if (numFigliInutili > 0) 
 		{
 			// calcolo la posizione dei divisori della generazione orizzontale e setto cursore
-			int Wsez= WSezTotale/numFigliInutili;
-			cursore[0]+= Wsez/2;
+			int partizione= (WSezTotale)/numFigliInutili;
+			if (fratello==2){
+				cursore[0]+=WSezTotale;
+			}
+			cursore[0]+= partizione/2; //fratelo sx: resta così, fratello dx è +=WsezTotale(che sarà /2 quando chiamo la funzione) +Wsez/2
 			
 			for ( Persona figlio : imp.getFigli()) 
 			{
 				if (!(figlio instanceof Imperatore))
 				{	
 					//linea verticale
-					g.drawLine(cursore[0], cursore[1], cursore[0],cursore[1]+ getHGenerazione()/2 -gioco);  //ipotizzato altezza nomi 10 pixels modificabile
+					g.drawLine(cursore[0], cursore[1], cursore[0],cursore[1]+ HGenerazione/2 -gioco);  //ipotizzato altezza nomi 10 pixels modificabile
 						
 					//aggiorno cursore
-					cursore[1]+= getHGenerazione()/2;
+					cursore[1]+= HGenerazione/2;
 					cursore[0]-=lenNomi;
 					scriviNome(figlio, g, cursore);
 				}
 				
 				//resetto il cursore e incremento per lo spiazzamento
-				cursore[1]-= getHGenerazione()/2;
+				cursore[1]-= HGenerazione/2;
 				cursore[0]+=lenNomi;
-				g.drawLine(cursore[0], cursore[1], cursore[0]+ Wsez, cursore[1]);
-				cursore[0]+=Wsez;
+				g.drawLine(cursore[0], cursore[1], cursore[0]+ partizione, cursore[1]);
+				cursore[0]+=partizione;
 			}
 		}
 	}
 	
-	public void disegnaMogliInutili(Imperatore imp, Graphics g, int[] cursore, Persona madre) 
+	public void disegnaMogliInutili(Imperatore imp, Graphics g, int[] cursore) 
 	{
 		//30 DIMENSIONI NOMI
 		//5 GIOCO TRA UNA DISEGNO E L'ALTRO
@@ -244,7 +279,7 @@ public class CanvasCreator extends Canvas {
 		int numMogliInutili= imp.getMogli().size();
 		
 		//vedo quante se c'è una madre e la tolgo da la lista 
-		if (!madre.getNome().equals(""))
+		if (imp.hasMotherWife())
 		{
 			numMogliInutili-=1;
 		}
@@ -255,7 +290,7 @@ public class CanvasCreator extends Canvas {
 			//linea orizzonatale
 			g.drawLine(cursore[0]-gioco, cursore[1], cursore[0]-gioco-riga, cursore[1] );
 			//linea verticale figli
-			g.drawLine(cursore[0]-gioco, cursore[1], cursore[0]-gioco-riga/2, cursore[1]+getHGenerazione()/2);
+			g.drawLine(cursore[0]-gioco, cursore[1], cursore[0]-gioco-riga/2, cursore[1]+HGenerazione/2);
 			//aggiorno il cursore
 			cursore[0]=cursore[0]-gioco-riga -lenNomi;
 			scriviNome(imp.getMogli().get(0), g, cursore);
@@ -267,17 +302,17 @@ public class CanvasCreator extends Canvas {
 			//linea orizzonatale
 			g.drawLine(cursore[0]-gioco, cursore[1], cursore[0]-gioco-riga, cursore[1] );
 			//linea verticale figli
-			g.drawLine(cursore[0]-gioco, cursore[1], cursore[0]-gioco-riga/2, cursore[1]+getHGenerazione()/2);
+			g.drawLine(cursore[0]-gioco, cursore[1], cursore[0]-gioco-riga/2, cursore[1]+HGenerazione/2);
 			
 			//aggiorno il cursore
 			cursore[0]=cursore[0]-gioco-riga;
 			
-			g.drawLine(cursore[0], cursore[1]+ getHGenerazione()/2 -HNomi, cursore[0] , cursore[1]-getHGenerazione()/2 +HNomi);
-			int Hlinea= getHGenerazione() -HNomi-HNomi;
+			g.drawLine(cursore[0], cursore[1]+ HGenerazione/2 -HNomi, cursore[0] , cursore[1]-HGenerazione/2 +HNomi);
+			int Hlinea= HGenerazione -HNomi-HNomi;
 			
 			//aggiorno cursore
 			cursore[0]-=lenNomi -gioco -riga;
-			cursore[1]=cursore[1]-getHGenerazione()/2 +HNomi;
+			cursore[1]=cursore[1]-HGenerazione/2 +HNomi;
 			
 			//calcolo lo spiazzamento tra le mogli inutili
 			int spiazzamento= Hlinea/(numMogliInutili-1);
@@ -294,45 +329,6 @@ public class CanvasCreator extends Canvas {
 				}
 			}
 		}
-	}
-	
-	public boolean figlioAdottato(Imperatore imp) {
-		if (imp.getMogli()==null) {
-			return true;
-		}
-		else if (imp.getMogli().contains(imp.getSuccessore().getMadre())) 
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-	
-	
-	//verifica se è presente una madre
-	public Persona esisteMadre(Imperatore imp)
-	{
-		Persona madre= new Persona( "", "url");
-		for (Persona moglie : imp.getMogli()) 
-		{
-			if (moglie instanceof Madre)
-			{
-				madre=moglie;
-				break;
-			}
-		}
-		return madre;
-	}
-	
-
-	public boolean DoppiaRiga(Imperatore person, int max) {
-		return true;
-	/*conta i figli dell'imperatore e le loro mogli, se superano un numero settato
-	in base alla larghezza del suo spazio dedicato da a quella gerarchia una doppia riga
-	*/
-	
 	}
 				
 	public void disegnaAdozione(int x1, int y1, int x2, int y2, Graphics g)
@@ -370,13 +366,13 @@ public class CanvasCreator extends Canvas {
 		int rettH = 20;
 		int dimFont = 12;
 		Font f;
-
 		if (persona instanceof Imperatore) {
 			f = new Font("Helvetica", Font.BOLD, dimFont);
 			}
 		else {
 				f = new Font("Helvetica", Font.PLAIN, dimFont);
 			}
+		g.setFont(f);
 		g.drawString(nome, cursore[0], cursore[1]);
 
 		if (nome.length()<=minLen) {
@@ -390,7 +386,6 @@ public class CanvasCreator extends Canvas {
 			}
 		}
 	}
-	
 	
 	public int getWGenerazione() {
 		return WGenerazione;
@@ -406,11 +401,5 @@ public class CanvasCreator extends Canvas {
 	}
 	public Imperatore getRadice() {
 		return radice;
-	}
-	public boolean isImpFratelli() {
-		return ImpFratelli;
-	}
-	public void setImpFratelli(boolean impFratelli) {
-		ImpFratelli = impFratelli;
 	}
 }

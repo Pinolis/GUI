@@ -90,6 +90,7 @@ public class disegnoprova extends Canvas {
 				Imperatore prova = AlberoPerTestGUI.Tree();
 				ArrayList<Integer> counter = new ArrayList<Integer>();
 				int generazioni = ContaGenerazioni.ricorsiva(prova, counter);
+				
 				JLabel ngen = new JLabel(generazioni+" Generazioni  ");
 				ngen.setBackground(c);
 				ngen.setForeground(Color.black);
@@ -97,7 +98,7 @@ public class disegnoprova extends Canvas {
 				ngen.setFont(font);
 				master.add(ngen,BorderLayout.EAST);
 				CanvasCreator C = new CanvasCreator(prova,generazioni);
-				C.setSize(1000, 500);
+				
 				pannelloCanvas.add(C);
 				pannelloCanvas.setBackground(c);
 				remove.setBackground(c);

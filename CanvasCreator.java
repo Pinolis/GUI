@@ -8,19 +8,17 @@ import java.awt.Graphics;
 
 public class CanvasCreator extends Canvas {
 	private Imperatore radice;
-	private int WGenerazione; //dimensioni della generazione corrente variabili
-	private int HGenerazione; //HGEN POTREBBE ESSERE FISSA, LA GRANDEZZA DEL CANVAS DOVREBBE ESSERE SETTATA IN BASE A QUANTE GENERAZIONI CI SONO (H CANVAS= HGEN x N.Gen)
-	private final int WIDTH; //dimensioni fissate del canvas 
-	private final int LENGTH;
+	private final static int WGenerazione= 1500; //dimensioni della generazione corrente variabili
+	private final static int HGenerazione= 100; //HGEN POTREBBE ESSERE FISSA, LA GRANDEZZA DEL CANVAS DOVREBBE ESSERE SETTATA IN BASE A QUANTE GENERAZIONI CI SONO (H CANVAS= HGEN x N.Gen)
+	private int WIDTH; //dimensioni fissate del canvas 
+	private int LENGTH;
 	private int fratello;
 	private int[] cursore;
 
 	public CanvasCreator(Imperatore rad, int numgen) {
 		radice=rad;
-		this.WIDTH= 100 ; 	//potrebbe essere fissa
-		this.LENGTH= 100;	//se non le decide andrea gliele passo in base al numgen (HGen x (NumGen x 2) perche ogni volta il livello √® per 2))
-		setWGenerazione(WIDTH);
-		setBackground(Color.white);
+		WIDTH= WGenerazione; 	//potrebbe essere fissa
+		LENGTH= HGenerazione*(numgen*2) ;	//se non le decide andrea gliele passo in base al numgen (HGen x (NumGen x 2) perche ogni volta il livello Ë per 2))
 		setSize(WIDTH, LENGTH);
 		
 	//costruttore con dati di grandezza ecc da aggiungere al frame
@@ -33,10 +31,10 @@ public class CanvasCreator extends Canvas {
 	
 	/*DA SISTEMARE:
 	 X OGNI VOLTA CHE CI STA GETWGENE RISCRIVERE COME WSEZ 
-	 X RINOMINARE VARIABILI DI GIOCO, DIMENSIONE NOMI ECC E METTERE IL NOME DELL IMPERATORE PI√π CENTRATO POSSIBILE
+	 X RINOMINARE VARIABILI DI GIOCO, DIMENSIONE NOMI ECC E METTERE IL NOME DELL IMPERATORE PI˘ CENTRATO POSSIBILE
 	 X METODO RESET CURSORE
 	 X CASO IMPERATORI FRATELLI (NELL'ULTIMA PARTE)
-	 X CORREZIONE COLLEGAMENTO TRA IMPERATORI SE CI STA UNA MADRE SE L'IMPERATORE √® ADOTTATO (fatto ma da rivedere) (l'imperatore non pu√≤ avere madre ed essere adottatao (forse ero troppo hi))
+	 X CORREZIONE COLLEGAMENTO TRA IMPERATORI SE CI STA UNA MADRE SE L'IMPERATORE Ë ADOTTATO (fatto ma da rivedere) (l'imperatore non puÚ avere madre ed essere adottatao (forse ero troppo hi))
 	 -GRANDEZZA NOMI E GIOCHI
 	 X LUNGHEZZA DELLE H GENERAZIONI (FORSE TROPPO PICCOLE PER TRATE MOGLI INUTILI)  (la fissiamo quindi sticazzi)
 	 -CASO IN CUI NON CI STANNO FIGLI SE NON IMPERATORI QUINDI NON SERVIREBBE METTERE UN DOPPIO LIVELLO (forse non lo gestiamo) (non lo stiamo gestendo) 
@@ -57,11 +55,11 @@ public class CanvasCreator extends Canvas {
 		
 		resetCursore(WSez, lenNome, livello);
 		
-		//verifico se c'√® una moglie
+		//verifico se c'Ë una moglie
 		if ( !(rad.getMogli()==null) )
 		{
 			///verifico se ci sta una madre
-			//se c'√® la madre
+			//se c'Ë la madre
 			if (rad.hasMotherWife()) 
 			{
 				cursore[0]+= -mezzaRiga-gioco-lenNome/2;
@@ -76,7 +74,7 @@ public class CanvasCreator extends Canvas {
 				scriviNome(rad.getSuccessore().getMadre(), g, cursore);
 				
 				
-				//se non √® la radice e c'√® una madre devo collegare l'imperatore corrente con la linea del precedente 
+				//se non Ë la radice e c'Ë una madre devo collegare l'imperatore corrente con la linea del precedente 
 				if (livello !=0) 
 				{
 					cursore[0]=WSez/2;
@@ -91,13 +89,13 @@ public class CanvasCreator extends Canvas {
 				resetCursore(WSez, lenNome, livello);
 			}
 			
-			//non c'√® una madre ma ci sono mogli inutili (imperatore al centro)
+			//non c'Ë una madre ma ci sono mogli inutili (imperatore al centro)
 			else
 				{
 					//collegamento con l'imperatore precedente
 					if (livello !=0)
 					{
-						//set cursore inzio della generazione  (brutto perche gi√† √® settato da un altra parte e non √® essenziale questo reset )
+						//set cursore inzio della generazione  (brutto perche gi‡ Ë settato da un altra parte e non Ë essenziale questo reset )
 						cursore[0]=WSez/2;
 						cursore[1]=(HGenerazione*livello);
 						
@@ -193,7 +191,7 @@ public class CanvasCreator extends Canvas {
 	
 	
 	public void resetCursore(int W, int lenN, int liv) {
-		//se si attiva l'if o l'else if vuol dire che W √® W/2 in quanto passato come parametro a ricorsiva per il caso dei fratelli imperatori
+		//se si attiva l'if o l'else if vuol dire che W Ë W/2 in quanto passato come parametro a ricorsiva per il caso dei fratelli imperatori
 		if (fratello==1) {
 			cursore[0]=W/2-lenN; //cursore va a un quarto dello schermo- len nome
 		}
@@ -222,12 +220,12 @@ public class CanvasCreator extends Canvas {
 		//calcolo il numero dei figli togliendo l'imperatore se presente
 		for (Persona figlio : imp.getFigli())
 		{
-			if (figlio instanceof Imperatore) //IDEA: counter che conta gli imperatori nella lista figli alla fine se √® maggiore di 1 setta la variabile imp frat a 1
+			if (figlio instanceof Imperatore) //IDEA: counter che conta gli imperatori nella lista figli alla fine se Ë maggiore di 1 setta la variabile imp frat a 1
 			{
 				numFigliInutili-=1;
 			}
 		}
-		//voglio che il numero sia pari perche cos√¨ non c'√® intersezione con la linea dell'imperatore
+		//voglio che il numero sia pari perche cosÏ non c'Ë intersezione con la linea dell'imperatore
 		if (numFigliInutili % 2 == 1)
 		{
 			numFigliInutili+=1;
@@ -241,7 +239,7 @@ public class CanvasCreator extends Canvas {
 			if (fratello==2){
 				cursore[0]+=WSezTotale;
 			}
-			cursore[0]+= partizione/2; //fratelo sx: resta cos√¨, fratello dx √® +=WsezTotale(che sar√† /2 quando chiamo la funzione) +Wsez/2
+			cursore[0]+= partizione/2; //fratelo sx: resta cosÏ, fratello dx Ë +=WsezTotale(che sar‡ /2 quando chiamo la funzione) +Wsez/2
 			
 			for ( Persona figlio : imp.getFigli()) 
 			{
@@ -278,13 +276,13 @@ public class CanvasCreator extends Canvas {
 		//mi serve per calcolare l'incremento della h quando scrivo ogni moglie
 		int numMogliInutili= imp.getMogli().size();
 		
-		//vedo quante se c'√® una madre e la tolgo da la lista 
+		//vedo quante se c'Ë una madre e la tolgo da la lista 
 		if (imp.hasMotherWife())
 		{
 			numMogliInutili-=1;
 		}
 		
-		//se la moglie √® singola non mi serve la linea vericale 
+		//se la moglie Ë singola non mi serve la linea vericale 
 		if (numMogliInutili == 1) 
 		{
 			//linea orizzonatale
@@ -296,7 +294,7 @@ public class CanvasCreator extends Canvas {
 			scriviNome(imp.getMogli().get(0), g, cursore);
 		}
 		
-		//pi√π di una moglie inutile 
+		//pi˘ di una moglie inutile 
 		else if (numMogliInutili>1)
 		{
 			//linea orizzonatale
@@ -353,9 +351,9 @@ public class CanvasCreator extends Canvas {
 		  }
 	}
 	
-	/* scriver√† il nome del tipo nella posizione del cursore o coordinate generiche, verificher√†
-	-se deve andare a capo se il nome √® troppo lungo;
-	-se mettere in grassetto il nome se √® imperatore(aggiungendo eventuali dati);
+	/* scriver‡ il nome del tipo nella posizione del cursore o coordinate generiche, verificher‡
+	-se deve andare a capo se il nome Ë troppo lungo;
+	-se mettere in grassetto il nome se Ë imperatore(aggiungendo eventuali dati);
 	*/
 	public void scriviNome(Persona persona, Graphics g, int[] cursore) {
 		String nome= persona.getNome();
@@ -387,18 +385,6 @@ public class CanvasCreator extends Canvas {
 		}
 	}
 	
-	public int getWGenerazione() {
-		return WGenerazione;
-	}
-	public void setWGenerazione(int wGenerazione) {
-		WGenerazione = wGenerazione;
-	}
-	public int getHGenerazione() {
-		return HGenerazione;
-	}
-	public void setHGenerazione(int hGenerazione) {
-		HGenerazione = hGenerazione;
-	}
 	public Imperatore getRadice() {
 		return radice;
 	}

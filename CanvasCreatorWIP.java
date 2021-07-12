@@ -225,51 +225,58 @@ public class CanvasCreator extends Canvas {
 				numFigliInutili-=1;
 			}
 		}
-		//voglio che il numero sia pari perche così non c'è intersezione con la linea dell'imperatore
-		if (numFigliInutili % 2 == 1)
-		{
-			numFigliInutili+=1;
-		}
+		int numFigliInutiliOrig=0;
+			//voglio che il numero sia pari perche così non c'è intersezione con la linea dell'imperatore
+			if (numFigliInutili % 2 == 1)
+			{
+				numFigliInutili+=1;
+				numFigliInutiliOrig=numFigliInutili-1;
+			}
 
-		// se sono presenti figli inutili li disegno
-		if (numFigliInutili > 0) 
-		{
-			// calcolo la posizione dei divisori della generazione orizzontale e setto cursore
-			int partizione= (WSezTotale)/numFigliInutili;
-			if (fratello==2){
+			// se sono presenti figli inutili li disegno
+			if (numFigliInutili > 0) 
+			{
+				// calcolo la posizione dei divisori della generazione orizzontale e setto cursore
+				int partizione= (WSezTotale)/numFigliInutili;
+				if (fratello==2){
 				cursore[0]+=WSezTotale;
 			}
-			cursore[0]+= partizione/2; //fratelo sx: resta così, fratello dx è +=WsezTotale(che sarà /2 quando chiamo la funzione) +Wsez/2
-			int countFigli= 0;
-			for ( Persona figlio : imp.getFigli()) 
-			{
+				cursore[0]+= partizione/2; //fratelo sx: resta così, fratello dx è +=WsezTotale(che sarà /2 quando chiamo la funzione) +Wsez/2
+				int countFigli= 0;
+				for ( Persona figlio : imp.getFigli()) 
+				{
 				
-				if (!(figlio instanceof Imperatore))
-				{	
-					//linea verticale
-					g.drawLine(cursore[0], cursore[1], cursore[0],cursore[1]+ HGenerazione/2 -gioco);  //ipotizzato altezza nomi 10 pixels modificabile
+					if (!(figlio instanceof Imperatore))
+					{	
+						//linea verticale
+						g.drawLine(cursore[0], cursore[1], cursore[0],cursore[1]+ HGenerazione/2 -gioco);  //ipotizzato altezza nomi 10 pixels modificabile
 						
-					//aggiorno cursore
-					cursore[1]+= HGenerazione/2;
-					cursore[0]-=lenNomi;
-					scriviNome(figlio, g, cursore);
-					countFigli+=1;	
+						//aggiorno cursore
+						cursore[1]+= HGenerazione/2;
+						cursore[0]-=lenNomi;
+						scriviNome(figlio, g, cursore);
+						countFigli+=1;	
 
-				//resetto il cursore e incremento per lo spiazzamento
-
-					cursore[1]-= HGenerazione/2;
-					cursore[0]+=lenNomi;
-					if (numFigliInutili==2) {
-						g.drawLine(cursore[0], cursore[1], cursore[0] + partizione, cursore[1]);
-					}
-					else if ((countFigli < numFigliInutili-1)) {
-						g.drawLine(cursore[0], cursore[1], cursore[0] + partizione, cursore[1]);
-						cursore[0]+=partizione;
+						//resetto il cursore e incremento per lo spiazzamento
+						cursore[1]-= HGenerazione/2;
+						cursore[0]+=lenNomi;
+						if (numFigliInutiliOrig==1) {
+							int detrazione=0;
+							if (imp.hasMotherWife()) {
+								detrazione=15;
+							}
+							g.drawLine(cursore[0], cursore[1], WGenerazione/2-lenNomi/2- detrazione, cursore[1]);
+							cursore[0]=WGenerazione/2-lenNomi/2;
+							g.drawLine(cursore[0], cursore[1], cursore[0], cursore[1]- HGenerazione/2+ gioco);
+						}
+						else if ((countFigli < numFigliInutili-1)) {
+							g.drawLine(cursore[0], cursore[1], cursore[0] + partizione, cursore[1]);
+							cursore[0]+=partizione;
+						}
 					}
 				}
 			}
 		}
-	}
 	
 	public void disegnaMogliInutili(Imperatore imp, Graphics g, int[] cursore) 
 	{
@@ -295,9 +302,7 @@ public class CanvasCreator extends Canvas {
 		if (numMogliInutili == 1) 
 		{
 			//linea orizzonatale
-			g.drawLine(cursore[0]-gioco, cursore[1], cursore[0]-gioco-riga, cursore[1] );
-			//linea verticale figli
-			g.drawLine(cursore[0]-gioco, cursore[1], cursore[0]-gioco-riga/2, cursore[1]+HGenerazione/2);
+			g.drawLine(cursore[0]-gioco, cursore[1], cursore[0]-gioco-riga, cursore[1]);
 			//aggiorno il cursore
 			cursore[0]=cursore[0]-gioco-riga -lenNomi;
 			scriviNome(imp.getMogli().get(0), g, cursore);
@@ -365,12 +370,19 @@ public class CanvasCreator extends Canvas {
 	-se mettere in grassetto il nome se è imperatore(aggiungendo eventuali dati);
 	*/
 	public void scriviNome(Persona persona, Graphics g, int[] cursore) {
-		String nome= persona.getNome();
+		String nome=persona.getNome();
+		int change=1;
+		if (nome.length()>13){
+			int lenNome=nome.length();
+			String newName=nome.substring(0,13) + "\n"+nome.substring(13,lenNome-1);
+			nome=newName;
+			change+=1;
+		}
+		
 		int gioco = 5;
-		int minLen = 5;
-		int spiazzamentoH = 15;
-		int maxLen = 17;
-		int rettH = 20;
+		int spiazzamentoH = 15*change;
+		int rettH = 20*change;
+		int rettW = 30;
 		int dimFont = 12;
 		Font f;
 		if (persona instanceof Imperatore) {
@@ -381,17 +393,8 @@ public class CanvasCreator extends Canvas {
 			}
 		g.setFont(f);
 		g.drawString(nome, cursore[0], cursore[1]);
-
-		if (nome.length()<=minLen) {
-			g.drawRect(cursore[0]-gioco, cursore[1]-spiazzamentoH, nome.length()*8, rettH);
-		} else {
-			if (nome.length()>=maxLen) {
-				g.drawRect(cursore[0]-gioco, cursore[1]-spiazzamentoH, nome.length()*6+6, rettH);
-			}
-			else{g.drawRect(cursore[0]-gioco, cursore[1]-spiazzamentoH, nome.length()*7, rettH);
-
-			}
-		}
+		g.drawRect(cursore[0]- gioco, cursore[1]-spiazzamentoH-gioco, rettW+gioco, rettH+gioco);
+		
 	}
 	
 	public Imperatore getRadice() {
